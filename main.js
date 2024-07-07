@@ -98,16 +98,16 @@ let productList = [ //Productos placeholder
 ];
 //Manejadores de la aplicación 
 //Navbar escritorio/tablets
-const navBarLeft= document.querySelector('.navbar-left');
-const navBarRight= document.querySelector('.navbar-right');
-const navBarDesktopMenu= document.querySelector('.desktop-menu');
+const navBarLeft = document.querySelector('.navbar-left');
+const navBarRight = document.querySelector('.navbar-right');
+const navBarDesktopMenu = document.querySelector('.desktop-menu');
 const navBarEmail = navBarRight.querySelector('.navbar-email');
 const navBarShoppingCart = navBarRight.querySelector('.navbar-shopping-cart');
 //Mobile
 const mobileMenu = document.querySelector('.mobile-menu');
 const hamburgerButton = document.querySelector('.menu');
 //Shopping cart menu/Product details
-const asideShoppingCart = document.querySelector('.shopping-cart-detail');
+const asideShoppingCart = document.querySelector('.shopping-cart');
 const asideProductDetail = document.querySelector('.product-detail');
 //Productos 
 const productCardsContainer = document.querySelector('.cards-container');
@@ -116,6 +116,7 @@ const productCardsContainer = document.querySelector('.cards-container');
 let currentAddToCartListener = null; 
 let currentProductDetails = null; //Saber si el nuevo producto a añadir desde el aside es el mismo
 
+//Render de los menus
 navBarEmail.addEventListener('click',() => {
     toggleVisibilityOf(navBarDesktopMenu);
     turnOffVisibilityOf(mobileMenu);
@@ -129,6 +130,8 @@ hamburgerButton.addEventListener('click',() => {
     turnOffVisibilityOf(asideProductDetail);
 });
 navBarShoppingCart.addEventListener('click', renderShoppingCartMenu);
+
+
 renderProducts(productList);
 
 const isFloat = value => Number(value) === value && value % 1 !== 0;
@@ -137,7 +140,7 @@ function formatPrice(price) { // Esta función convierte el número a un formato
     return isFloat(price) ? `$${price.toFixed(2)}` : `$${price}.00`;
 }
 
-function toggleVisibilityOf(element){
+function toggleVisibilityOf(element){ 
     element.classList.toggle('inactive');
 }
 function turnOffVisibilityOf(element){
@@ -174,7 +177,7 @@ function renderProducts(products){
         productName.innerText = product.name;
         infoDiv.append(productPrice, productName);
     
-        //Genero la figura de agregar al carrito
+        //Genero la figura y el botón de agregar al carrito y le agrego un eventlistener para el click
         const cartFigure = document.createElement('figure');
         const cartImg = document.createElement('img');
         cartImg.setAttribute('src','./icons/bt_add_to_cart.svg');
@@ -190,6 +193,9 @@ function renderProducts(products){
 
 function renderShoppingCartMenu(){
     updateCart();
+
+    const closeShoppingCartButton = asideShoppingCart.querySelector('.shopping-cart-close');
+    closeShoppingCartButton.addEventListener('click', () => turnOffVisibilityOf(asideShoppingCart));
 
     //Mostrar el menu del shopping cart y ocultar los demás.
     toggleVisibilityOf(asideShoppingCart);
@@ -215,7 +221,6 @@ function renderProductDetails(productDetails){
     const descriptionOFProduct = asideProductDetail.querySelector('#ProductDescription');
 
     //Cambio los datos placeholder por los datos del producto seleccionado
-    //imgOfProduct.setAttribute('src', productDetails.imgSrc);
     imgOfProduct.setAttribute('src', productDetails.imgSrc);
     imgOfProduct.setAttribute('alt', productDetails.imgAlt);
     priceOfProduct.innerText = formatPrice(productDetails.price);
@@ -234,10 +239,8 @@ function renderProductDetails(productDetails){
 
         // Actualizamos la referencia del producto actual
         currentProductDetails = productDetails;
-
         // Creamos un nuevo event listener
         currentAddToCartListener = () => addProductToCart(currentProductDetails);
-
         // Añadimos el nuevo event listener al botón
         addToCartBtn.addEventListener('click', currentAddToCartListener);
     }
@@ -264,7 +267,7 @@ function addProductToCart(productDetails){
 
     //Genero el contenedor del producto
     const productCartContainer = document.createElement('div');
-    productCartContainer.classList.add('shopping-cart');
+    productCartContainer.classList.add('cart-item');
 
     //Genero la imagen del producto y la agrego un figure 
     const productImg = document.createElement('img');
@@ -304,7 +307,7 @@ function addProductToCart(productDetails){
 
 function updateCart(){
     const totalPriceContainer = asideShoppingCart.querySelector('#TotalPrice');
-    const products = asideShoppingCart.getElementsByClassName('shopping-cart');
+    const products = asideShoppingCart.getElementsByClassName('cart-item');
     const shoppingCartProductsQty = navBarRight.querySelector('.navbar-shopping-cart').getElementsByTagName('div');
     let totalPrice = 0.00;
     shoppingCartProductsQty[0].innerText = 0;
@@ -322,7 +325,7 @@ function updateCart(){
 }
 
 function isThisProductInTheCart(containerOfProducts, product){
-    const products = containerOfProducts.getElementsByClassName('shopping-cart');
+    const products = containerOfProducts.getElementsByClassName('cart-item');
     for(productNumber = 0; productNumber < products.length; productNumber++){
         const infoOfProduct = products[productNumber].querySelectorAll('p');
         //Verifico que tanto el nombre como el precio sean el mismo, próximamente puede ser buena idea añadir un ID de cada producto
